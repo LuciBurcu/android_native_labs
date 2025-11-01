@@ -1,4 +1,4 @@
-package com.luciburcu.ui.theme
+package com.luciburcu.common.theme
 
 import androidx.compose.ui.graphics.Color
 

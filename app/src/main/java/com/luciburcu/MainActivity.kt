@@ -11,20 +11,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.luciburcu.ui.theme.Android_native_labsTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.luciburcu.common.navigation.DetailsScreenRoute
+import com.luciburcu.common.navigation.HomeScreenRoute
+import com.luciburcu.common.theme.Android_native_labsTheme
+import com.luciburcu.landmark.details.screens.DetailsScreen
+import com.luciburcu.landmark.homescreen.repository.LandmarkRepository
+import com.luciburcu.landmark.homescreen.screens.HomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // This is the current theme applied to the app
+            val controller = rememberNavController()
+            val landmarkRepository = LandmarkRepository()
             Android_native_labsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                NavHost(navController = controller, startDestination = HomeScreenRoute) {
+                    composable<HomeScreenRoute> {
+                        HomeScreen(
+                            landmarkRepository = landmarkRepository,
+                            navController = controller
+                        )
+                    }
+                    composable<DetailsScreenRoute> {
+                        val args = it.toRoute<DetailsScreenRoute>()
+                        DetailsScreen(
+                            landmarkRepository = landmarkRepository,
+                            navController = controller,
+                            id = args.id
+                        )
+                    }
                 }
             }
         }
