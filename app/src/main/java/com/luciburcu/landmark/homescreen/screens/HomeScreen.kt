@@ -32,6 +32,11 @@ import kotlin.let
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(landmarkRepository: LandmarkRepository, navController: NavHostController) {
+    /**
+     * UI state variables
+     * We use `remember` so that the state is preserved across recompositions
+     * `by` delegate is used to simplify state variable access
+     */
     var landmarks by remember { mutableStateOf(landmarkRepository.getLandmarks()) }
     var shouldShowBottomSheet by remember { mutableStateOf(false) }
     var idToDelete by remember { mutableStateOf<String?>(null) }
