@@ -26,21 +26,13 @@ import androidx.navigation.NavHostController
 import com.luciburcu.common.navigation.DetailsScreenRoute
 import com.luciburcu.landmark.homescreen.components.LandmarkListItem
 import com.luciburcu.landmark.homescreen.repository.LandmarkRepository
+import com.luciburcu.landmark.homescreen.viewmodel.HomeScreenViewModel
 import kotlin.collections.flatten
 import kotlin.let
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(landmarkRepository: LandmarkRepository, navController: NavHostController) {
-    /**
-     * UI state variables
-     * We use `remember` so that the state is preserved across recompositions
-     * `by` delegate is used to simplify state variable access
-     */
-    var landmarks by remember { mutableStateOf(landmarkRepository.getLandmarks()) }
-    var shouldShowBottomSheet by remember { mutableStateOf(false) }
-    var idToDelete by remember { mutableStateOf<String?>(null) }
-
+fun HomeScreen(homeScreenViewModel: HomeScreenViewModel, navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -50,25 +42,32 @@ fun HomeScreen(landmarkRepository: LandmarkRepository, navController: NavHostCon
                 ), title = { Text("Homepage") })
         }, modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
+        // This is optional loading state handling, you can do it even nicer with a proper loading
+        // component and embedding it in the column below
+        if (homeScreenViewModel.isLoading) {
+            Text("Loading...", modifier = Modifier.padding(innerPadding))
+            return@Scaffold
+        }
         Column(modifier = Modifier.padding(innerPadding)) {
             LazyColumn {
-                items(items = landmarks) { it ->
+                items(items = homeScreenViewModel.landmarks) { it ->
                     LandmarkListItem(it, onLongClick = {
-                        shouldShowBottomSheet = true
-                        idToDelete = it.id
+                        homeScreenViewModel.showBottomSheet()
+                        homeScreenViewModel.idToDelete = it.id
                     }) {
                         navController.navigate(DetailsScreenRoute(id = it.id))
                     }
                 }
             }
-            if (shouldShowBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { shouldShowBottomSheet = false }) {
+            if (homeScreenViewModel.shouldShowBottomSheet) {
+                ModalBottomSheet(onDismissRequest = {
+                    homeScreenViewModel.hideBottomSheet()
+                }) {
                     Button(
                         modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                         onClick = {
-                            idToDelete?.let { landmarkRepository.deleteLandmark(it) }
-                            landmarks = listOf(landmarkRepository.getLandmarks()).flatten()
-                            shouldShowBottomSheet = false
+                            homeScreenViewModel.deleteLandmarkById(homeScreenViewModel.idToDelete)
+                            homeScreenViewModel.shouldShowBottomSheet = false
                         },
                         colors = ButtonColors(
                             contentColor = Color.White,

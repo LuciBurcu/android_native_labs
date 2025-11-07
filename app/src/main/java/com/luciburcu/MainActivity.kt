@@ -1,5 +1,6 @@
 package com.luciburcu
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +23,7 @@ import com.luciburcu.common.theme.Android_native_labsTheme
 import com.luciburcu.landmark.details.screens.DetailsScreen
 import com.luciburcu.landmark.homescreen.repository.LandmarkRepository
 import com.luciburcu.landmark.homescreen.screens.HomeScreen
+import com.luciburcu.landmark.homescreen.viewmodel.HomeScreenViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,11 +32,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             val controller = rememberNavController()
             val landmarkRepository = LandmarkRepository()
+            // proper way to create ViewModels in Compose using `viewModel`
+            val homeScreenViewModel =
+                viewModel<HomeScreenViewModel> { HomeScreenViewModel(landmarkRepository = landmarkRepository) }
             Android_native_labsTheme {
                 NavHost(navController = controller, startDestination = HomeScreenRoute) {
                     composable<HomeScreenRoute> {
                         HomeScreen(
-                            landmarkRepository = landmarkRepository,
+                            homeScreenViewModel = homeScreenViewModel,
                             navController = controller
                         )
                     }
@@ -48,21 +54,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Android_native_labsTheme {
-        Greeting("Android")
     }
 }

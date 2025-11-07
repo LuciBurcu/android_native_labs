@@ -1,6 +1,7 @@
 package com.luciburcu.landmark.homescreen.repository
 
 import com.luciburcu.landmark.homescreen.models.Landmark
+import kotlinx.coroutines.delay
 import java.util.UUID
 import kotlin.collections.find
 import kotlin.collections.flatten
@@ -30,9 +31,14 @@ class LandmarkRepository {
 
     /**
      * Gets the list of all landmarks. (part of R in CRUD)
+     *
+     * Simulates a network or database delay.
+     *
+     * Highlights the use of suspend functions for asynchronous operations.
      */
-    fun getLandmarks(): List<Landmark> {
-        return listOf(_landmarks).flatten()
+    suspend fun getLandmarks(): List<Landmark> {
+        delay(1000)
+        return _landmarks.toList()
     }
 
     /**
